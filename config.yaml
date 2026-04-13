@@ -1,0 +1,177 @@
+# PyClaw 配置文件示例
+# 复制此文件为 config.yaml 并填入你的配置
+# 支持环境变量替换: ${ENV_VAR} 或 ${ENV_VAR:default_value}
+
+# =============================================================================
+# LLM 配置
+# =============================================================================
+llm:
+  # 默认 LLM 提供商
+  # 可选: claude, deepseek, qwen, doubao
+  default_provider: claude
+
+  # 任务路由规则
+  # 根据任务类型自动选择最合适的模型
+  task_routing:
+    code_generation: claude      # 代码生成 -> Claude (代码能力强)
+    code_review: claude          # 代码审查 -> Claude
+    complex_reasoning: deepseek  # 复杂推理 -> DeepSeek-R1 (推理能力强)
+    math_logic: deepseek         # 数学逻辑 -> DeepSeek
+    chinese_chat: qwen           # 中文对话 -> Qwen (中文能力强)
+    translation: qwen            # 翻译 -> Qwen
+    summarization: deepseek      # 摘要 -> DeepSeek
+    creative_writing: claude     # 创意写作 -> Claude
+    long_context: claude         # 长文本 -> Claude (200K 上下文)
+    vision: doubao               # 图片理解 -> Doubao
+    simple_qa: deepseek          # 简单问答 -> DeepSeek (经济实惠)
+    default: deepseek            # 默认 -> DeepSeek
+
+# =============================================================================
+# Provider 配置
+# =============================================================================
+providers:
+  # Claude (Anthropic)
+  # 支持中转 API: 设置 api_base 为你的中转地址
+  claude:
+    api_key: sk-va94YNq8lOuOqaSptD5BaYUBTgKT6kXu6WAnpnBk2zhnCd9b
+    api_base: https://cc.580ai.net
+    model: claude-sonnet-4-20250514
+    max_tokens: 8192  # Claude 支持最大 8192 输出 tokens
+    temperature: 0.7
+    timeout: 600  # 10分钟超时
+
+  # DeepSeek
+  deepseek:
+    api_key: ${DEEPSEEK_API_KEY}
+    api_base: https://api.deepseek.com/v1
+    model: deepseek-chat
+    # 推理模型: deepseek-reasoner
+    max_tokens: 4096
+    temperature: 0.7
+    timeout: 60
+
+  # Qwen (阿里云通义千问)
+  qwen:
+    api_key: ${DASHSCOPE_API_KEY}
+    api_base: https://dashscope.aliyuncs.com/compatible-mode/v1
+    model: qwen-plus
+    # 可选模型: qwen-turbo, qwen-plus, qwen-max, qwen-vl-plus
+    max_tokens: 4096
+    temperature: 0.7
+    timeout: 60
+
+  # Doubao (字节跳动豆包)
+  doubao:
+    api_key: ${DOUBAO_API_KEY}
+    api_base: https://ark.cn-beijing.volces.com/api/v3
+    model: doubao-pro-32k
+    # 可选模型: doubao-lite-4k, doubao-pro-4k, doubao-pro-32k, doubao-pro-128k
+    max_tokens: 4096
+    temperature: 0.7
+    timeout: 60
+
+# =============================================================================
+# 记忆配置
+# =============================================================================
+memory:
+  # 数据库路径
+  database_path: ~/.pyclaw/memory.db
+
+  # 上下文 Token 限制
+  max_context_tokens: 8000
+
+  # 历史消息数量限制
+  max_history_messages: 50
+
+  # 是否启用事实记忆
+  enable_facts: true
+
+# =============================================================================
+# Agent 配置
+# =============================================================================
+agent:
+  # 系统提示词
+  system_prompt: |
+    你是 PyClaw，一个智能助手。
+    回复风格：                                             
+      - 提供详细、有深度的回答                               
+      - 使用清晰的结构和格式                                 
+      - 必要时使用列表、流程图、伪代码、代码块等格式化                       
+      - 主动提供相关的补充信息和建议
+
+  # 最大迭代次数 (工具调用)
+  max_iterations: 10
+
+  # 是否启用工具调用
+  enable_tools: true
+
+# =============================================================================
+# 通道配置
+# =============================================================================
+channels:
+  # iMessage 通道
+  imessage:
+    enabled: True
+    # chat.db 路径 (macOS)
+    db_path: ~/Library/Messages/chat.db
+    # 轮询间隔 (秒)
+    poll_interval: 2
+    # 允许的发送者列表（为空则允许所有）
+    allowed_senders:
+      - "+8613051152156"
+      - "2586850005@qq.com"
+
+  # 微信通道
+  wechat:
+    enabled: false
+    # 是否自动登录
+    auto_login: false
+
+# =============================================================================
+# 安全配置
+# =============================================================================
+security:
+  # DM 安全策略
+  # disabled: 禁用 DM
+  # pairing: 需要配对码
+  # allowlist: 仅白名单用户
+  # open: 开放 (不推荐)
+  dm_policy: allowlist
+
+  # 白名单用户 ID
+  allowlist: []
+
+  # 黑名单用户 ID
+  blocklist: []
+
+  # 速率限制 (每分钟消息数)
+  rate_limit_per_minute: 30
+
+# =============================================================================
+# 调度配置
+# =============================================================================
+scheduler:
+  # 是否启用心跳调度
+  enabled: false
+
+  # 心跳间隔 (秒)
+  heartbeat_interval: 60
+
+# =============================================================================
+# 日志配置
+# =============================================================================
+logging:
+  # 日志级别: DEBUG, INFO, WARNING, ERROR
+  level: INFO
+
+  # 日志文件路径
+  file: ~/.pyclaw/pyclaw.log
+
+  # 单个日志文件最大大小 (字节)
+  max_size: 10485760  # 10MB
+
+  # 保留的日志文件数量
+  backup_count: 3
+
+  # 是否输出到控制台
+  console: true
